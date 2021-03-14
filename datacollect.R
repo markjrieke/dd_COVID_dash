@@ -47,38 +47,26 @@ f_counties <- rbind(f_counties, f_texas)
 rm(f_texas)
 
 # TX state
-f_counties %>%
-  filter(!county %in% c("Bexar", "State of Texas")) %>%
+f_counties <- f_counties %>%
   arrange(date) %>%
   group_by(county) %>%
   mutate(new_cases = cases - lag(cases),
           new_deaths = deaths - lag(deaths),
           avg_cases = rollmean(new_cases, 14, align = "right", fill = NA),
-          avg_deaths = rollmean(new_deaths, 14, align = "right", fill = NA)) # %>%
+          avg_deaths = rollmean(new_deaths, 14, align = "right", fill = NA)) %>%
   left_join(f_pop, by = "county") %>%
   mutate(cases_norm = cases/pop * 100000,
          deaths_norm = deaths/pop * 100000,
          avg_cases_norm = avg_cases/pop * 100000,
          avg_deaths_norm = avg_deaths/pop * 100000) %>%
-  filter(new_cases < -1000)
-  
-  
-  
-  ggplot() + 
-  geom_col(aes(x = date,
-               y = new_cases),
-           fill = "grey",
-           alpha = 0.5,
-           size = 2) +
-  geom_path(aes(x = date,
-                y = avg_cases),
-            color = "blue",
-            size = 1)
-  
+  select(-new_cases, -new_deaths, -pop)
 
 # export & save to data folder ----
 write.csv(f_counties, 
           "data/county_data.csv")
+
+write.csv(f_pop,
+          "data/county_names.csv")
 
 # test area ----
 
