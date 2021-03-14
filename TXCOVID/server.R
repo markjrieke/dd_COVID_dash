@@ -17,10 +17,26 @@ shinyServer(function(input, output) {
     output$lineplot <- renderPlotly({
 
         f_counties %>%
-            filter(county == input$county) %>%
+            filter(county %in% c(input$county1,
+                                 input$county2,
+                                 input$county3)) %>%
             ggplot(aes(x = date,
-                       y = cases)) +
-            geom_path(group = 1)
+                       y = cases_norm,
+                       color = county)) +
+            geom_path(group = 1) +
+            labs(title = paste("COVID-19 in Texas<br>Comparing Cases per 100,000 in ",
+                               input$county1,
+                               ", ",
+                               input$county2,
+                               ", and ",
+                               input$county3,
+                               ".",
+                               sep = ""),
+                 subtitle = paste("Comparing Cases per 100,000 in",
+                                  input$county1,
+                                  input$county2,
+                                  input$county3,
+                                  ssep = " "))
         
     })
     
@@ -28,7 +44,9 @@ shinyServer(function(input, output) {
     output$table <- renderTable({
         
         f_counties %>%
-            filter(county == input$county)
+            filter(county %in% c(input$county1,
+                                 input$county2,
+                                 input$county3))
         
     })
 

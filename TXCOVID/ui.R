@@ -29,9 +29,17 @@ shinyUI(
                          list("Biweekly average" = "avg",
                               "Cumulative" = "cum")),
             # Select County
-            selectInput("county", "County:",
+            selectInput("county1", "Compare 1:",
                         l_counties,
-                        selected = l_counties[215])
+                        selected = l_counties[215]),
+            
+            selectInput("county2","County 2:",
+                        l_counties,
+                        selected = l_counties[150]),
+            
+            selectInput("county3","County 3",
+                        l_counties,
+                        selected = l_counties[225])
         ),
         mainPanel(
             plotlyOutput("lineplot"),
