@@ -13,7 +13,7 @@ rm(f_pop)
 
 # ui ----
 shinyUI(
-    pageWithSidebar(
+    fluidPage(
         
         # App title
         headerPanel("Texas COVID Dashboard"),
@@ -21,29 +21,36 @@ shinyUI(
         sidebarPanel(
             
             # Information to display:
-            radioButtons("view", "View:",
+            radioButtons("count_var", "View:",
                          list("Confirmed cases" = "cases",
                               "Confirmed deaths" = "deaths")),
             # Plot Type:
-            radioButtons("type", "Plot Type:",
+            radioButtons("count_type", "Plot Type:",
                          list("Biweekly average" = "avg",
                               "Cumulative" = "cum")),
+            
+            br(),
+            
+            # Total or per 100,000
+            radioButtons("count_scale", NULL,
+                         list("Total" = "abs",
+                              "Per 100,000" = "norm")),
+            
             # Select County
-            selectInput("county1", "Compare 1:",
+            selectInput("county1", "Compare up to 3 counties:",
                         l_counties,
                         selected = l_counties[215]),
             
-            selectInput("county2","County 2:",
+            selectInput("county2", NULL,
                         l_counties,
-                        selected = l_counties[150]),
+                        selected = l_counties[57]),
             
-            selectInput("county3","County 3",
+            selectInput("county3", NULL,
                         l_counties,
-                        selected = l_counties[225])
+                        selected = l_counties[101])
         ),
         mainPanel(
-            plotlyOutput("lineplot"),
-            tableOutput("table")
+            plotlyOutput("lineplot")
         )
     )
 )
