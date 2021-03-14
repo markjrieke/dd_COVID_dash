@@ -5,17 +5,30 @@ library(ggplot2)
 library(plotly)
 library(forcats)
 library(scales)
+library(httr)
 
 # setup ----
 
+# load theme elements
 devtools::source_url(
     "https://raw.githubusercontent.com/markjrieke/thedatadiary/main/dd_theme_elements/dd_theme_elements.R"
     )
 
-f_counties <- as_tibble(read.csv("data/county_data.csv"))
+# load from private repo
+github_link <- "https://raw.githubusercontent.com/markjrieke/dd_COVID_dash/main/TXCOVID/data/county_data.csv?token=AHTD3MD5IPSFEIO7P2BKTFDAJ2L5O"
+api_key <- "fbc3315804ab05b1f19246c26a9936d70638040c"
+req <- GET(github_link,
+           add_headers(Authorization = paste("token",
+                                             api_key,
+                                             sep = " ")))
+
+f_counties <- as_tibble(content(req, type = "text/csv"))
 f_counties %>%
-    select(-X) %>%
     mutate(date = as.Date(date))
+
+rm(github_link,
+   api_key,
+   req)
 
 # server ----
 shinyServer(function(input, output) {
@@ -86,7 +99,7 @@ shinyServer(function(input, output) {
         if (input$count_type == "avg") {
             str_suba <- "14-day average of "
         } else {
-            str_suba <- "total "
+            str_suba <- "Total "
         }
         
         str_subb <- paste(input$count_var, " ", sep = "")
@@ -153,7 +166,7 @@ shinyServer(function(input, output) {
                  x = NULL,
                  y = NULL) +
             scale_y_continuous(label = comma) +
-            scale_x_date(date_labels = "%b-%y",
+            scale_x_date(date_labels = "%b",
                          date_breaks = "month") +
             dd_theme + 
             theme(legend.position = "none")
@@ -164,7 +177,6 @@ shinyServer(function(input, output) {
                                 x = 0,
                                 text = paste("<span style = 'font-size:20px'><b>COVID-19 in Texas</b></span><br>",
                                              "<sup>",
-                                             "Comparing the ",
                                              str_suba,
                                              str_subb,
                                              str_subc,

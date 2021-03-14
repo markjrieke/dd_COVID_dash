@@ -50,8 +50,7 @@ shinyUI(
                         selected = l_counties[101])
         ),
         mainPanel(
-            plotlyOutput("lineplot",
-                         height = "600px")
+            plotlyOutput("lineplot")
         )
     )
 )
