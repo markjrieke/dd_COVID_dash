@@ -81,6 +81,52 @@ shinyServer(function(input, output) {
         }
         
         colnames(f_plot) <- c("date", "county", "var")
+        
+        # creating subtitle string
+        if (input$count_type == "avg") {
+            str_suba <- "14-day average of "
+        } else {
+            str_suba <- "total "
+        }
+        
+        str_subb <- paste(input$count_var, " ", sep = "")
+        
+        if (input$count_scale == "norm") {
+            str_subc <- "per 100,000 "
+        } else {
+            str_subc <- NULL
+        }
+        
+        if (input$county1 == "State of Texas") {
+            str_county1 <- "the State of Texas"
+        } else {
+            str_county1 <- paste(input$county1, "County", sep = " ")
+        }
+        
+        if (input$county2 == "State of Texas") {
+            str_county2 <- "the State of Texas"
+        } else {
+            str_county2 <- paste(input$county2, "County", sep = " ")
+        }
+        
+        if (input$county3 == "State of Texas") {
+            str_county3 <- "the State of Texas"
+        } else {
+            str_county3 <- paste(input$county3, "County", sep = " ")
+        }
+        
+        str_subtitle <- paste("Comparing the ", 
+                              str_suba, 
+                              str_subb, 
+                              str_subc, 
+                              "in ",
+                              str_county1,
+                              ", ",
+                              str_county2,
+                              ", and ",
+                              str_county3,
+                              ".",
+                              sep = "")
 
         # create ggplot
         p<- f_plot %>%
@@ -103,7 +149,7 @@ shinyServer(function(input, output) {
             scale_color_manual(values = c(dd_blue, 
                                           dd_red, 
                                           dd_green)) +
-            labs(title = paste("COVID-19 in Texas"),
+            labs(title = "COVID-19 in Texas",
                  x = NULL,
                  y = NULL) +
             scale_y_continuous(label = comma) +
@@ -113,7 +159,30 @@ shinyServer(function(input, output) {
             theme(legend.position = "none")
             
         ggplotly(p, tooltip = "text") %>%
-            layout(hovermode = "x unified")
+            layout(hovermode = "x unified",
+                   title = list(xanchor = "left",
+                                x = 0,
+                                text = paste("<span style = 'font-size:20px'><b>COVID-19 in Texas</b></span><br>",
+                                             "<sup>",
+                                             "Comparing the ",
+                                             str_suba,
+                                             str_subb,
+                                             str_subc,
+                                             "in ",
+                                             "<span style='color:#5565D7;'><b>",
+                                             str_county1,
+                                             "</b></span>",
+                                             ", ",
+                                             "<span style='color:#D75565;'><b>",
+                                             str_county2,
+                                             "</b></span>",
+                                             ", and ",
+                                             "<span style='color:#65d755;'><b>",
+                                             str_county3,
+                                             "</b></span>",
+                                             ".",
+                                             "</sup>",
+                                             sep = "")))
         
     })
     

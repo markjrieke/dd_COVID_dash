@@ -21,20 +21,20 @@ shinyUI(
         sidebarPanel(
             
             # Information to display:
-            radioButtons("count_var", "View:",
-                         list("Confirmed cases" = "cases",
-                              "Confirmed deaths" = "deaths")),
+            radioButtons("count_var", "Compare:",
+                         list("Cases" = "cases",
+                              "Deaths" = "deaths")),
             # Plot Type:
-            radioButtons("count_type", "Plot Type:",
-                         list("Biweekly average" = "avg",
+            radioButtons("count_type", "Time Period:",
+                         list("14-day average" = "avg",
                               "Cumulative" = "cum")),
             
             br(),
             
             # Total or per 100,000
             radioButtons("count_scale", NULL,
-                         list("Total" = "abs",
-                              "Per 100,000" = "norm")),
+                         list("Per 100,000" = "norm",
+                              "Total" = "abs")),
             
             # Select County
             selectInput("county1", "Compare up to 3 counties:",
@@ -50,7 +50,9 @@ shinyUI(
                         selected = l_counties[101])
         ),
         mainPanel(
-            plotlyOutput("lineplot")
+            plotlyOutput("lineplot",
+                         height = "600px")
         )
     )
 )
+
