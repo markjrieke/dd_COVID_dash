@@ -61,13 +61,33 @@ f_counties <- f_counties %>%
          avg_deaths_norm = avg_deaths/pop * 100000) %>%
   select(-new_cases, -new_deaths, -pop)
 
+# create list for ui ----
+f_pop <- f_pop %>%
+  select(county) %>%
+  filter(county != "State of Texas") %>%
+  arrange(county)
+
+# create a temp tibble to order correctly
+f_temp <- as_tibble("State of Texas")
+
+colnames(f_temp) <- "county"
+
+f_pop <- rbind(f_temp, f_pop)
+
+rm(f_temp)
+
+# create list of county names to be loaded
+f_pop <- f_pop %>%
+  mutate(variable = county)
+
 # export & save to data folder ----
 write.csv(f_counties, 
-          "data/county_data.csv")
+          "TXCOVID/data/county_data.csv")
 
 write.csv(f_pop,
-          "data/county_names.csv")
+          "TXCOVID/data/county_names.csv")
 
 # test area ----
 
-?left_join
+
+# hi!

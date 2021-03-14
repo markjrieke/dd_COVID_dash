@@ -1,23 +1,35 @@
 # libraries ----
 library(shiny)
 library(dplyr)
+library(ggplot2)
+library(plotly)
 
 # setup ----
 
 f_counties <- as_tibble(read.csv("data/county_data.csv"))
+f_counties %>%
+    select(-X)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
-    output$distPlot <- renderPlot({
+    # output line plot
+    output$lineplot <- renderPlotly({
 
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+        f_counties %>%
+            filter(county == input$county) %>%
+            ggplot(aes(x = date,
+                       y = cases)) +
+            geom_path(group = 1)
+        
+    })
+    
+    # table render...
+    output$table <- renderTable({
+        
+        f_counties %>%
+            filter(county == input$county)
+        
     })
 
 })
