@@ -5,7 +5,6 @@ library(ggplot2)
 library(plotly)
 library(forcats)
 library(scales)
-library(httr)
 
 # setup ----
 
@@ -14,15 +13,8 @@ devtools::source_url(
     "https://raw.githubusercontent.com/markjrieke/thedatadiary/main/dd_theme_elements/dd_theme_elements.R"
     )
 
-# load from private repo
-github_link <- "https://raw.githubusercontent.com/markjrieke/dd_COVID_dash/main/TXCOVID/data/county_data.csv?token=AHTD3MD5IPSFEIO7P2BKTFDAJ2L5O"
-api_key <- "fbc3315804ab05b1f19246c26a9936d70638040c"
-req <- GET(github_link,
-           add_headers(Authorization = paste("token",
-                                             api_key,
-                                             sep = " ")))
-
-f_counties <- as_tibble(content(req, type = "text/csv"))
+# load from data source
+f_counties <- as_tibble(read.csv("data/county_data.csv"))
 f_counties %>%
     mutate(date = as.Date(date))
 
