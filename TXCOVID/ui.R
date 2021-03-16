@@ -26,7 +26,8 @@ shinyUI(
                 tabsetPanel(
                     tabPanel(
                         h4("Map"),
-                        h4("Leaflet plot coming soon")
+                        h4("Leaflet plot coming soon"),
+                        
                     ),
                     
                     tabPanel(

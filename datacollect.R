@@ -1,22 +1,20 @@
 # libraries ----
 library(dplyr)
 library(zoo)
+library(readr)
 
 # data import ----
 
 # COVID data from NYT
-f_counties <- as_tibble(
-  read.csv(
-    "https://github.com/nytimes/covid-19-data/raw/master/us-counties.csv"
-    )
-  )
+f_counties <- read_csv(
+  "https://github.com/nytimes/covid-19-data/raw/master/us-counties.csv"
+)
+    
 
 # population data from TX demographics site
-f_pop <- as_tibble(
-  read.csv(
-    "https://demographics.texas.gov/Resources/TPEPP/Estimates/2019/2019_txpopest_county.csv"
-    )
-  )
+f_pop <- read_csv(
+  "https://demographics.texas.gov/Resources/TPEPP/Estimates/2019/2019_txpopest_county.csv"
+)
 
 # data wrangling ----
 

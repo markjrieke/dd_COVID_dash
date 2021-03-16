@@ -15,8 +15,25 @@ devtools::source_url(
 
 # load from data source
 f_counties <- as_tibble(read.csv("data/county_data.csv"))
-f_counties %>%
-    mutate(date = as.Date(date))
+
+# create dataframe of avg long/lat points
+f_position <- as_tibble(map_data("county")) %>%
+    filter(region == "texas") %>%
+    select(long, lat, subregion) %>%
+    group_by(subregion) %>%
+    mutate(avg_long = mean(long)) %>%
+    mutate(avg_lat = mean(lat)) %>%
+    ungroup() %>%
+    select(subregion, avg_long, avg_lat) %>%
+    dplyr::distinct(subregion, .keep_all = TRUE)
+
+# add to county dataframe & unload from memory
+f_counties <- f_counties %>%
+    mutate(date = as.Date(date),
+           county_lower = tolower(county)) %>%
+    left_join(f_position, by = c("county_lower" = "subregion"))
+
+rm(f_position)
 
 # server ----
 shinyServer(function(input, output) {
@@ -138,7 +155,7 @@ shinyServer(function(input, output) {
                                         input$county1,
                                         input$county2,
                                         input$county3)) %>%
-            ggplot(aes(x = as.Date(date),
+            ggplot(aes(x = date,
                        y = var,
                        color = county,
                        text = paste(county, 
