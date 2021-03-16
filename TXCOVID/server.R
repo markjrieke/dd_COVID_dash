@@ -5,16 +5,17 @@ library(ggplot2)
 library(plotly)
 library(forcats)
 library(scales)
+library(readr)
 
-# setup ----
+# import ----
 
 # load theme elements
 devtools::source_url(
     "https://raw.githubusercontent.com/markjrieke/thedatadiary/main/dd_theme_elements/dd_theme_elements.R"
     )
 
-# load from data source
-f_counties <- as_tibble(read.csv("data/county_data.csv"))
+# load NYT data - will always be live
+f_counties <- read_csv("data/county_data.csv")
 f_counties <- f_counties %>%
     mutate(date = as.Date(date))
 
