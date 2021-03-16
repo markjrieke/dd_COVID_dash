@@ -84,7 +84,17 @@ shinyUI(
             
             tabPanel(
                 h4("About"),
-                h4("About section coming soon")
+                h4("About section coming soon"),
+                h1("Heading 1"),
+                h2("Heading 2"),
+                h3("Heading 3"),
+                h4("Heading 4"),
+                h5("Heading 5"),
+                h6("Heading 6"),
+                p("Paragraph with lots of words. 
+                  I am writing a few things so that I can see how this all turns out"),
+                tags$b("This is some bold text"),
+                p("- This is hopefully a bullet")
             )
         )
     )

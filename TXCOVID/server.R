@@ -18,10 +18,6 @@ f_counties <- as_tibble(read.csv("data/county_data.csv"))
 f_counties %>%
     mutate(date = as.Date(date))
 
-rm(github_link,
-   api_key,
-   req)
-
 # server ----
 shinyServer(function(input, output) {
     
