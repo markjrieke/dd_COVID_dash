@@ -26,7 +26,7 @@ shinyUI(
             collapsible = TRUE,
             
             tabPanel(
-                h4("State Information"),
+                "State Information",
                 
                 sidebarPanel(
                   
@@ -88,7 +88,7 @@ shinyUI(
             ),
             
             tabPanel(
-                h4("County Comparison"),
+                "County Comparison",
                 
                 sidebarPanel(
                     
@@ -130,7 +130,7 @@ shinyUI(
             ),
             
             tabPanel(
-              h4("About"),
+              "About",
               h3("About"),
               hr(),
               p(style = "text-align: justify;",
