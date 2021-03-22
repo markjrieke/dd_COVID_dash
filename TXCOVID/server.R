@@ -6,6 +6,7 @@ library(plotly)
 library(forcats)
 library(scales)
 library(readr)
+library(leaflet)
 
 # import ----
 
@@ -22,8 +23,337 @@ f_counties <- f_counties %>%
 # server ----
 shinyServer(function(input, output) {
     
+    # output state map title
+    output$text_state_map <- renderText({
+        paste(
+            if (input$input_type == "avg") {
+                "14-Day Average of "
+            } else {
+                "Total "
+            },
+            
+            if (input$input_count == "cases") {
+                "Cases "
+            } else {
+                "Deaths "
+            },
+            
+            if (input$input_scale == "norm") {
+                "per 100,000"
+            } else {
+                ""
+            },
+            
+            sep = ""
+        )
+    })
     
-    # output line plot
+    # output leaflet map
+    output$map_leaflet <- renderLeaflet({
+        
+        # create plot specific frame
+        if (input$input_type == "avg") {
+            if (input$input_count == "cases") {
+                if (input$input_scale == "norm") {
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, avg_cases_norm, avg_lat, avg_long)
+                        
+                } else { # input_scale == "abs"
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, avg_cases, avg_lat, avg_long)
+                    
+                }
+            } else { # input_count == "deaths"
+                if (input$input_scale == "norm") {
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, avg_deaths_norm, avg_lat, avg_long)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, avg_deaths, avg_lat, avg_long)
+                    
+                }
+            }
+        } else { # input_type == "cum"
+            if (input$input_count == "cases") {
+                if (input$input_scale == "norm") {
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, cases_norm, avg_lat, avg_long)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, cases, avg_lat, avg_long)
+                    
+                }
+            } else { # input_count == "deaths"
+                if(input$input_scale == "norm") {
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, deaths_norm, avg_lat, avg_long)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_map_plot <- f_counties %>%
+                        filter(date == max(date),
+                               !county %in% c("Unknown", "State of Texas")) %>%
+                        select(county, deaths, avg_lat, avg_long)
+                    
+                }
+            }
+        }
+        
+        colnames(f_map_plot) <- c("county", "var", "avg_lat", "avg_long")
+        
+        # set color of bubble
+        if (input$input_count == "cases") {
+            bubble_color <- dd_blue
+        } else {
+            bubble_color <- dd_red
+        }
+        
+        # set var_tooltip
+        if (input$input_type == "avg") {
+            var_tooltip_a <- "14-Day Avg. of "
+        } else { # input_type == "cum"
+            var_tooltip_a <- "Total "
+        }
+        
+        if (input$input_count == "cases") {
+            var_tooltip_b <- "Cases "
+        } else { # input_type == "deaths"
+            var_tooltip_b <- "Deaths "
+        }
+        
+        if (input$input_scale == "norm") {
+            var_tooltip_c <- "per 100,000"
+        } else { # input_scale == "abs"
+            var_tooltip_c <- NULL
+        }
+        
+        var_tooltip <- paste(
+            var_tooltip_a,
+            var_tooltip_b,
+            var_tooltip_c,
+            sep = ""
+        )
+        
+        # set tooltip text
+        map_tooltip <- paste(
+            "<b>County:</b> ", f_map_plot$county, "<br/>",
+            "<b>", var_tooltip, ": </b>", comma(f_map_plot$var, accuracy = 1)
+        ) %>%
+            lapply(htmltools::HTML)
+        
+        f_map_plot %>%
+            leaflet() %>%
+            addTiles() %>%
+            addProviderTiles(providers$CartoDB.Positron) %>%
+            addCircleMarkers(
+                ~avg_long,
+                ~avg_lat,
+                fillColor = bubble_color,
+                fillOpacity = 0.5,
+                stroke = FALSE,
+                radius = ~var/max(var) * input$input_bubble,
+                label = map_tooltip,
+                labelOptions = labelOptions(style = list("font-weight" = "normal",
+                                                         padding = "3px 8px"),
+                                            textsize = "13px",
+                                            direction = "auto")
+            )
+        
+    })
+    
+    # output state line title
+    output$text_state_line <- renderText({
+        paste(
+            if (input$input_type == "avg") {
+                "14-Day Average of "
+            } else {
+                "Total "
+            },
+            
+            if (input$input_count == "cases") {
+                "Cases "
+            } else {
+                "Deaths "
+            },
+            
+            if (input$input_scale == "norm") {
+                "per 100,000"
+            } else {
+                ""
+            },
+            
+            sep = ""
+        )
+    })
+    
+    # output state line plot
+    output$state_lineplot <- renderPlotly({
+        
+        # create plot specific frame
+        if (input$input_type == "avg") {
+            if (input$input_count == "cases") {
+                if (input$input_scale == "norm") {
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, avg_cases_norm)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, avg_cases)
+                    
+                }
+            } else { # input_count == "deaths"
+                if (input$input_scale == "norm") {
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, avg_deaths_norm)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, avg_deaths)
+                    
+                }
+            }
+        } else { # input_type == "cum"
+            if (input$input_count == "cases") {
+                if (input$input_scale == "norm") {
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, cases_norm)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, cases)
+                    
+                }
+            } else { # input_count == "deaths"
+                if(input$input_scale == "norm") {
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, deaths_norm)
+                    
+                } else { # input_scale == "abs"
+                    
+                    f_state_line <- f_counties %>%
+                        filter(county == "State of Texas") %>%
+                        select(date, county, deaths)
+                    
+                }
+            }
+        }
+        
+        # set colnames
+        colnames(f_state_line) <- c("date", "county", "var")
+        
+        # set color
+        if (input$input_count == "cases") {
+            color_line = dd_blue
+        } else { # input_count == "deaths"
+            color_line = dd_red
+        }
+        
+        # set tooltip and title
+        if (input$input_type == "avg") {
+            tooltip_state_line_a <- "14-Day avg of "
+            title_state_line_a <- "14-Day avg of "
+        } else { # input_type == "cum"
+            tooltip_state_line_a <- "Total "
+            title_state_line_a <- "Total "
+        }
+        
+        if (input$input_count == "cases") {
+            tooltip_state_line_b <- "Cases "
+            title_state_line_b <- "Cases "
+        } else { # input_count == "deaths"
+            tooltip_state_line_b <- "Deaths "
+            title_state_line_b <- "Deaths "
+        }
+        
+        if (input$input_scale == "norm") {
+            tooltip_state_line_c <- "per 100,000: "
+            title_state_line_c <- "per 100,000"
+        } else { # input_scale == "abs"
+            tooltip_state_line_c <- ": "
+            title_state_line_c <- ""
+        }
+        
+        tooltip_state_line <- paste(
+            tooltip_state_line_a,
+            tooltip_state_line_b,
+            tooltip_state_line_c,
+            sep = ""
+        )
+        
+        title_state_line <- paste(
+            title_state_line_a,
+            title_state_line_b,
+            title_state_line_c,
+            sep = ""
+        )
+        
+        # create baseline ggplot
+        p_state_line <- f_state_line %>%
+            ggplot(aes(x = date,
+                       y = var,
+                       text = paste("<b>",
+                                    tooltip_state_line,
+                                    "</b><br>",
+                                    number(var,
+                                           big.mark = ",",
+                                           accuracy = 1)))) +
+            geom_path(group = 1,
+                      color = color_line) +
+            dd_theme +
+            labs(x = NULL,
+                 y = NULL) +
+            scale_x_date(date_breaks = "month",
+                         date_labels = "%b") +
+            scale_y_continuous(label = comma)
+        
+        ggplotly(p_state_line, tooltip = "text") %>%
+            layout(hovermode = "x unified")
+        
+    })
+    
+    # output county comparison plot title
+    {
+        # rendertext issue?
+    }
+    
+    # output county comparison line plot
     output$lineplot <- renderPlotly({
         
         # ooof ready for some ugly code???

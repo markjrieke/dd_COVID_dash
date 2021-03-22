@@ -2,6 +2,7 @@
 library(dplyr)
 library(zoo)
 library(readr)
+library(stringr)
 
 # data import ----
 
@@ -47,6 +48,7 @@ rm(f_texas)
 # TX state
 f_counties <- f_counties %>%
   arrange(date) %>%
+  mutate(county = str_replace(county, "DeWitt", "De Witt")) %>%
   group_by(county) %>%
   mutate(new_cases = cases - lag(cases),
           new_deaths = deaths - lag(deaths),
@@ -58,6 +60,21 @@ f_counties <- f_counties %>%
          avg_cases_norm = avg_cases/pop * 100000,
          avg_deaths_norm = avg_deaths/pop * 100000) %>%
   select(-new_cases, -new_deaths, -pop)
+
+# add in lat/long ----
+f_map <- as_tibble(map_data("county")) %>%
+  filter(region == "texas") %>%
+  group_by(subregion) %>%
+  mutate(avg_lat = mean(lat),
+         avg_long = mean(long)) %>%
+  ungroup() %>%
+  select(subregion, avg_lat, avg_long) %>%
+  distinct(subregion, .keep_all = TRUE)
+
+f_counties <- f_counties %>%
+  mutate(lookup = tolower(county)) %>%
+  left_join(f_map, by = c("lookup" = "subregion")) %>%
+  select(-lookup)
 
 # create list for ui ----
 f_pop <- f_pop %>%
