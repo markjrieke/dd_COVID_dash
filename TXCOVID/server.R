@@ -10,10 +10,40 @@ library(leaflet)
 
 # import ----
 
-# load theme elements
-devtools::source_url(
-    "https://raw.githubusercontent.com/markjrieke/thedatadiary/main/dd_theme_elements/dd_theme_elements.R"
-    )
+# manual theme elements (doesn't like to call dd_them from online due to the 
+# extrafont package - maybe something to fix later)
+library(ggtext)
+dd_orange <- "#F48847"
+dd_black <- "#282D30"
+dd_cream <- "#F9F3EB"
+dd_blue <- "#5565D7"
+dd_red <- "#D75565"
+dd_blue_dark <- "#353F86"
+dd_red_dark <- "#BC4A58"
+dd_purple <- "#D755A6"
+dd_gray <- "#5E6264"
+dd_green <- "#65D755"
+
+dd_theme <- theme(
+    text = element_text(color = dd_black),
+    plot.title = element_markdown(face = "bold", size = 14),
+    plot.subtitle = element_markdown(size = 10),
+    plot.caption = element_markdown(),
+    legend.text = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_markdown(color = dd_black),
+    axis.text = element_markdown(color = dd_black),
+    plot.title.position = "plot",
+    panel.background = element_rect(fill = dd_cream),
+    axis.line.x.bottom = element_line(color = dd_black),
+    axis.line.y.left = element_line(color = dd_black),
+    axis.ticks = element_line(color = dd_black)
+)
+
+
+#devtools::source_url(
+#    "https://raw.githubusercontent.com/markjrieke/thedatadiary/main/dd_theme_elements/dd_theme_elements.R"
+#    )
 
 # load NYT data - will always be live
 f_counties <- read_csv("data/county_data.csv")
@@ -494,7 +524,7 @@ shinyServer(function(input, output) {
             layout(hovermode = "x unified",
                    title = list(xanchor = "left",
                                 x = 0,
-                                text = paste("<span style = 'font-size:20px'><b>COVID-19 in Texas</b></span><br>",
+                                text = paste("<span style = 'font-size:16px'><b>COVID-19 in Texas</b></span><br>",
                                              "<sup>",
                                              str_suba,
                                              str_subb,
