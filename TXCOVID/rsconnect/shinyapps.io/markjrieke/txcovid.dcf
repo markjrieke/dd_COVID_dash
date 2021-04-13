@@ -5,6 +5,6 @@ account: markjrieke
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3789646
-bundleId: 4447378
+bundleId: 4465839
 url: https://markjrieke.shinyapps.io/txcovid/
-when: 1617901484.20272
+when: 1618322087.16548
